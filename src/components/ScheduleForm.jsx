@@ -1,60 +1,68 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
 export default function ScheduleForm() {
-  const [form, setForm] = useState({ name: '', email: '', date: '', service: '' })
-  const [modalMessage, setModalMessage] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [form, setForm] = useState({ name: '', email: '', date: '', service: '' });
+  const [message, setMessage] = useState(null);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setMessage(null); // reset popup
     try {
-      const res = await fetch('/api/send-email', {
+      const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      })
-      const data = await res.json()
-      if (res.ok) {
-        setModalMessage({
-          title: 'Booking Confirmed',
-          body: `🎉 Thank you, ${form.name}! Your appointment for "${form.service}" has been scheduled on ${form.date}. A confirmation email will be sent to ${form.email}.`
-        })
-        setForm({ name: '', email: '', date: '', service: '' })
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: data.message || 'Booking successful!' });
+        setForm({ name: '', email: '', date: '', service: '' });
       } else {
-        setModalMessage({
-          title: 'Booking Failed',
-          body: data?.error || 'An error occurred while sending confirmation email.'
-        })
+        setMessage({ type: 'error', text: data.error || 'Booking failed. Please try again.' });
       }
-    } catch (err) {
-      setModalMessage({ title: 'Booking Failed', body: err.message || 'Network error' })
-    } finally {
-      setLoading(false)
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Network error. Please try again later.' });
     }
-  }
+  };
 
   return (
-    <div className="relative">
-      <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-lg shadow">
+    <section className="flex justify-center items-center min-h-[80vh] bg-white shadow-lg rounded-xl m-6 p-8">
+      <form onSubmit={handleSubmit} className="w-full max-w-lg space-y-6">
+        <h2 className="text-2xl font-bold text-center text-blue-900">Book an Appointment</h2>
+
+        {/* ✅ Styled Popup */}
+        {message && (
+          <div
+            className={`p-4 rounded-xl text-center transition-all duration-300 ${
+              message.type === 'success'
+                ? 'bg-green-100 text-green-800 border border-green-400'
+                : 'bg-red-100 text-red-800 border border-red-400'
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+
         <input
           type="text"
           name="name"
-          placeholder="Your Name"
           value={form.name}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
+          placeholder="Your Name"
+          className="w-full p-3 border rounded-lg"
           required
         />
         <input
           type="email"
           name="email"
-          placeholder="Your Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
+          placeholder="Your Email"
+          className="w-full p-3 border rounded-lg"
           required
         />
         <input
@@ -62,14 +70,14 @@ export default function ScheduleForm() {
           name="date"
           value={form.date}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
+          className="w-full p-3 border rounded-lg"
           required
         />
         <select
           name="service"
           value={form.service}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
+          className="w-full p-3 border rounded-lg"
           required
         >
           <option value="">Select Service</option>
@@ -77,23 +85,14 @@ export default function ScheduleForm() {
           <option value="Repairs">Repairs</option>
           <option value="Installations">Installations</option>
         </select>
-        <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded">
-          {loading ? 'Booking...' : 'Book Now'}
+
+        <button
+          type="submit"
+          className="w-full bg-blue-900 text-white p-3 rounded-lg hover:bg-blue-700"
+        >
+          Book Now
         </button>
       </form>
-
-      {/* Full-screen modal when modalMessage is set */}
-      {modalMessage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white max-w-3xl w-full rounded-lg p-8 text-left shadow-xl">
-            <h3 className="text-2xl font-bold mb-4">{modalMessage.title}</h3>
-            <p className="mb-6">{modalMessage.body}</p>
-            <div className="flex justify-end space-x-2">
-              <button onClick={() => setModalMessage(null)} className="px-4 py-2 border rounded">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
+    </section>
+  );
 }
