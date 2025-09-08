@@ -1,5 +1,5 @@
 {
-  "name": "scheduling-app-vercel-ready",
+  "name": "scheduling-app",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -8,10 +8,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "nodemailer": "^6.9.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3",
-    "nodemailer": "^6.9.4"
+    "react-router-dom": "^6.22.3"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
@@ -19,8 +19,6 @@
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.1",
     "vite": "^5.1.0"
-  },
-  "engines": {
-    "node": ">=18.x"
   }
 }
+

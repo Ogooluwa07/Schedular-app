@@ -1,17 +1,9 @@
 {
   "version": 2,
-  "build": {
-    "env": {
-      "NODE_VERSION": "18"
-    }
-  },
-  "functions": {
-    "api/send-email.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
+  "builds": [
+    { "src": "api/send-email.js", "use": "@vercel/node" }
+  ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" }
-  ],
-  "outputDirectory": "dist"
+  ]
 }
